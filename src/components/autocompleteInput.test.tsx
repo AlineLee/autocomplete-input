@@ -47,10 +47,24 @@ describe('Input', () => {
 
         fireEvent.input(input, { target: { value: 't' }});
         const allItensLowerCase = queryAllByRole('listitem');
-        expect(allItensLowerCase.length).toBe(4);
 
         fireEvent.input(input, { target: { value: 'T' }});
         const allItensUpperCase = queryAllByRole('listitem');
-        expect(allItensUpperCase.length).toBe(4);
+
+        expect(allItensLowerCase.length).toEqual(allItensUpperCase.length);
+    });
+
+    it('should fill the input when an option is selected', () => {
+        const { getByText, getByTestId } = render(
+            <AutocompleteInput />,
+        );
+
+        const input = getByTestId('input');
+
+        fireEvent.input(input, { target: { value: 't' }});
+        const item = getByText('Tomato');
+
+        fireEvent.click(item);
+        expect(input).toHaveValue('Tomato');
     });
 });

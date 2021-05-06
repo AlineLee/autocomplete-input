@@ -14,6 +14,10 @@ const Button = styled('button')`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  &strong {
+    color: #00bcd4;
+  }
 `;
 
 const List = styled('ol')`
@@ -50,7 +54,7 @@ const Item = styled('li')`
 `;
 
 const AutocompleteInput = () => {
-  const [results, setResults] = useState<string[]>([]);
+  const [results, setResults] = useState<{bold: string, original:string}[]>([]);
   const [inputValue, setInputValue] = useState<string>('');
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const highlightedOption = useRef() as React.MutableRefObject<HTMLInputElement>;
@@ -62,9 +66,20 @@ const AutocompleteInput = () => {
   useEffect(() => {
     if (inputValue) {
       const inputValueLowerCase = inputValue.toLowerCase();
-      const newResults = fruitList.filter((item) => item.toLowerCase().startsWith(inputValueLowerCase));
+      const filterResults = fruitList.filter((item) => item.toLowerCase().includes(inputValueLowerCase));
+      const newResults = filterResults.length > 1 || filterResults[0]?.toLowerCase() !== inputValueLowerCase ? filterResults : [];
 
-      setResults(newResults.length > 1 || newResults[0]?.toLowerCase() !== inputValueLowerCase ? newResults : []);
+      const parsedResults = newResults.map((item) => {
+        const boldString = (item: string, inputValue:string) => {
+          const test = (str: string) => {
+            return `<strong>${str}</strong>`;
+          }
+          return item.replace(RegExp(inputValue , 'gi'), test)
+        };
+        return { original: item, bold: boldString(item, inputValue) };
+      });
+
+      setResults(parsedResults);
       return;
     }
     setResults([]);
@@ -115,7 +130,7 @@ const AutocompleteInput = () => {
           }
           return (
             <Item key={index} className={highlightedIndex === index ? 'highlighted' : undefined } >
-              <Button onClick={handleElementSelection} {...opts}>{item}</Button>
+              <Button onClick={handleElementSelection} {...opts} dangerouslySetInnerHTML={{__html: item.bold}} title={item.original} />
             </Item>
           )
         })}

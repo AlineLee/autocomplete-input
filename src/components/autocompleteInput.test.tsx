@@ -19,10 +19,10 @@ describe('Input', () => {
 
         const input = getByTestId('input');
 
-        fireEvent.input(input, { target: { value: 't' }});
+        fireEvent.input(input, { target: { value: 'tam' }});
 
         const allItens = getAllByRole('listitem');
-        expect(allItens.length).toBe(4);
+        expect(allItens.length).toBe(2);
     });
 
     it('should show 0 elements when the query term is deleted', () => {
@@ -37,6 +37,32 @@ describe('Input', () => {
 
         const allItens = queryAllByRole('listitem');
         expect(allItens.length).toBe(0);
+    });
+
+    it('should find the query in the middle', () => {
+        const { getByTitle, getByTestId } = render(
+            <AutocompleteInput />,
+        );
+
+        const input = getByTestId('input');
+
+        fireEvent.input(input, { target: { value: 'rap' }});
+        const item = getByTitle('Grape');
+
+        expect(item).toBeVisible();
+    });
+
+    it('should find the query in the beginning', () => {
+        const { getByTitle, getByTestId } = render(
+            <AutocompleteInput />,
+        );
+
+        const input = getByTestId('input');
+
+        fireEvent.input(input, { target: { value: 'grap' }});
+        const item = getByTitle('Grape');
+
+        expect(item).toBeVisible();
     });
 
     it('should not have difference when the query term is upper or lower case', () => {
@@ -56,14 +82,14 @@ describe('Input', () => {
     });
 
     it('should fill the input when an option is selected', () => {
-        const { getByText, getByTestId } = render(
+        const { getByTitle, getByTestId } = render(
             <AutocompleteInput />,
         );
 
         const input = getByTestId('input');
 
         fireEvent.input(input, { target: { value: 't' }});
-        const item = getByText('Tomato');
+        const item = getByTitle('Tomato');
 
         fireEvent.click(item);
         expect(input).toHaveValue('Tomato');
@@ -83,7 +109,7 @@ describe('Input', () => {
         fireEvent.keyUp(input, { key: 'ArrowUp', code: 'ArrowUp' });
         fireEvent.keyUp(input, { key: 'Enter', code: 'Enter' });
 
-        expect(input).toHaveValue('Pitaya');
+        expect(input).toHaveValue('Apple');
     });
 
     it('should return to highlight the first element when the user cross the end of the list', () => {
